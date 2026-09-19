@@ -2,21 +2,27 @@
 
 Extracts minutiae features — ridge terminations and bifurcations, each with
 its ridge angle — from a fingerprint image. The image is first enhanced
-with an oriented Gabor filter bank (ridge orientation decides the filter
-orientation), then skeletonized, then scanned for minutiae.
+with an oriented Gabor filter bank, then skeletonized, then scanned for
+minutiae.
 
 ![minutiae example](https://user-images.githubusercontent.com/13918778/35665327-9ddbd220-06da-11e8-8fa9-1f5444ee2036.png)
 
-This project builds on
-[Fingerprint-Enhancement-Python](https://github.com/Utkarsh-Deshmukh/Fingerprint-Enhancement-Python),
-which implements the enhancement algorithm from:
+This project originally vendored a copy of
+[Utkarsh-Deshmukh/Fingerprint-Enhancement-Python](https://github.com/Utkarsh-Deshmukh/Fingerprint-Enhancement-Python)
+and [Utkarsh-Deshmukh/Fingerprint-Feature-Extraction](https://github.com/Utkarsh-Deshmukh/Fingerprint-Feature-Extraction).
+Both were later split by their author into actively maintained PyPI
+packages, so this repo now depends on those directly instead of keeping
+its own aging fork of the algorithm:
 
-> Hong, L., Wan, Y., and Jain, A. K. "Fingerprint image enhancement:
-> Algorithm and performance evaluation." IEEE Transactions on Pattern
-> Analysis and Machine Intelligence 20, 8 (1998), pp 777-789.
+- [`fingerprint-enhancer`](https://pypi.org/project/fingerprint-enhancer/) —
+  the Gabor-filter enhancement, implementing:
+  > Hong, L., Wan, Y., and Jain, A. K. "Fingerprint image enhancement:
+  > Algorithm and performance evaluation." IEEE Transactions on Pattern
+  > Analysis and Machine Intelligence 20, 8 (1998), pp 777-789.
 
-The enhancement code is itself a Python port of Dr. Peter Kovesi's original
-MATLAB implementation.
+  (itself a Python port of Dr. Peter Kovesi's original MATLAB code)
+- [`fingerprint-feature-extractor`](https://pypi.org/project/fingerprint-feature-extractor/) —
+  minutiae detection and per-minutia ridge-angle computation
 
 ## Setup
 
@@ -32,14 +38,13 @@ pip install -r requirements.txt
 cd src
 python main_enhancement.py                      # uses the sample image in images/
 python main_enhancement.py path/to/image.bmp     # or your own image
-python main_enhancement.py path/to/image.bmp --save-steps   # also dump intermediate pipeline images
 ```
 
 Output is written to `enhanced/`:
 - `enhanced.bmp` — the enhanced, binarized fingerprint
 - `Minutiae.bmp` — the skeleton with terminations (blue) and bifurcations (red) circled
-- `minutiae.txt` — one line per minutia: `type<TAB>row col<TAB>angle_degrees`
-- with `--save-steps`, `steps/<image_name>/` also gets the normalized, orientation, filtered and skeleton images for inspection/presentation
+- `minutiae.txt` — one line per minutia: `type<TAB>row col<TAB>angle_degrees[,angle_degrees,...]`
+  (terminations have one angle, bifurcations have one per branch)
 
 ### Compare two fingerprints
 
@@ -61,16 +66,13 @@ be a production-grade biometric matcher.
 images/          sample input fingerprint image(s)
 enhanced/        output of main_enhancement.py (generated, not needed in git)
 src/
-  ridge_segment.py, ridge_orient.py, ridge_freq.py, frequest.py,
-  ridge_filter.py, image_enhance.py    -- Gabor-filter based enhancement
-  getTerminationBifurcation.py         -- minutiae detection on the skeleton
-  removeSpuriousMinutiae.py            -- drops minutiae that are too close together
-  main_enhancement.py                  -- CLI: enhance + extract minutiae
-  match_fingerprints.py                -- CLI: compare two fingerprints
+  main_enhancement.py    -- CLI: enhance + extract minutiae (via the pip packages above)
+  match_fingerprints.py  -- CLI: compare two fingerprints
 ```
 
 ## License
 
 BSD 2-Clause — see [LICENSE](LICENSE). Enhancement algorithm and original
-implementation by Utkarsh Deshmukh / Peter Kovesi; minutiae extraction,
-angle computation and matching demo added on top of it.
+implementation by Utkarsh Deshmukh / Peter Kovesi; the CLI scripts and
+matching demo in this repo are a thin layer on top of their published
+packages.

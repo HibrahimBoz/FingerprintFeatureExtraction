@@ -16,6 +16,10 @@ import math
 from main_enhancement import extract_minutiae
 
 
+def _mean_angle(minutia):
+    return sum(minutia.Orientation) / len(minutia.Orientation)
+
+
 def match_minutiae(minutiae_a, minutiae_b, distance_threshold=15, angle_threshold_deg=20):
     """Greedily pairs minutiae of the same type between two sets.
 
@@ -26,13 +30,13 @@ def match_minutiae(minutiae_a, minutiae_b, distance_threshold=15, angle_threshol
     for i, ma in enumerate(minutiae_a):
         best_j, best_dist = None, None
         for j, mb in enumerate(minutiae_b):
-            if j in used_b or ma["type"] != mb["type"]:
+            if j in used_b or ma.Type != mb.Type:
                 continue
-            dist = math.hypot(ma["row"] - mb["row"], ma["col"] - mb["col"])
+            dist = math.hypot(ma.locX - mb.locX, ma.locY - mb.locY)
             if dist > distance_threshold:
                 continue
-            angle_diff = abs(ma["angle_deg"] - mb["angle_deg"]) % 180
-            angle_diff = min(angle_diff, 180 - angle_diff)
+            angle_diff = abs(_mean_angle(ma) - _mean_angle(mb)) % 360
+            angle_diff = min(angle_diff, 360 - angle_diff)
             if angle_diff > angle_threshold_deg:
                 continue
             if best_dist is None or dist < best_dist:
@@ -61,8 +65,10 @@ def _parse_args():
 if __name__ == "__main__":
     args = _parse_args()
 
-    minutiae_a, _ = extract_minutiae(args.image_a)
-    minutiae_b, _ = extract_minutiae(args.image_b)
+    term_a, bif_a, _ = extract_minutiae(args.image_a)
+    term_b, bif_b, _ = extract_minutiae(args.image_b)
+    minutiae_a = term_a + bif_a
+    minutiae_b = term_b + bif_b
 
     matches = match_minutiae(minutiae_a, minutiae_b, args.distance_threshold, args.angle_threshold)
     score = similarity_score(minutiae_a, minutiae_b, matches)
