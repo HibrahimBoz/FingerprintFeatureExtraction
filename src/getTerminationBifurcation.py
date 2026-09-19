@@ -7,7 +7,6 @@ Created on Sun Jan 28 18:12:44 2018
 
 import numpy as np
 from skimage.morphology import convex_hull_image, erosion
-from skimage.morphology import square
 
 def getTerminationBifurcation(img, mask):
     
@@ -28,7 +27,7 @@ def getTerminationBifurcation(img, mask):
                     minutiaeBif[i,j] = 1;
                     
     mask = convex_hull_image(mask>0)
-    mask = erosion(mask, square(5))         # Structuing element for mask erosion = square(5)
+    mask = erosion(mask, np.ones((5, 5), dtype=bool))         # 5x5 square structuring element for mask erosion
     minutiaeTerm = np.uint8(mask)*minutiaeTerm
     
     return(minutiaeTerm, minutiaeBif)

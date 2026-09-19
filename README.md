@@ -1,52 +1,76 @@
-# How to use
-copy your file into images and change it name as "parmak izi 1.bmp"
+# FingerprintFeatureExtraction
 
-run the main_enhancement.py file
-You will see output images in enhance file
-The coordinates of minutiaes are in src/data.txt
+Extracts minutiae features — ridge terminations and bifurcations, each with
+its ridge angle — from a fingerprint image. The image is first enhanced
+with an oriented Gabor filter bank (ridge orientation decides the filter
+orientation), then skeletonized, then scanned for minutiae.
 
-please dont forget to delete data.txt file. I didnt add code for clean it.
-# Fingerprint-Enhancement-Python
+![minutiae example](https://user-images.githubusercontent.com/13918778/35665327-9ddbd220-06da-11e8-8fa9-1f5444ee2036.png)
 
-Uses oriented gabor filter bank to enhance the fingerprint image. The orientation of the gabor filters is decided by the orientation of ridges in the input image. 
+This project builds on
+[Fingerprint-Enhancement-Python](https://github.com/Utkarsh-Deshmukh/Fingerprint-Enhancement-Python),
+which implements the enhancement algorithm from:
 
-## Results
-![temp](https://cloud.githubusercontent.com/assets/13918778/25770604/637b3f38-31ee-11e7-818f-1f8359c96e07.jpg)
-## Running the tests
+> Hong, L., Wan, Y., and Jain, A. K. "Fingerprint image enhancement:
+> Algorithm and performance evaluation." IEEE Transactions on Pattern
+> Analysis and Machine Intelligence 20, 8 (1998), pp 777-789.
 
-1) go into the src folder
+The enhancement code is itself a Python port of Dr. Peter Kovesi's original
+MATLAB implementation.
 
-2) run the following command:
-  
-  python main_enhancement.py
-  
-3) The sample images are stored in the "images" folder
+## Setup
 
-4) The enhanced image will be stored in the "enhanced" folder
+```bash
+pip install -r requirements.txt
+```
 
-## Theory
-- We use oriented gabor filters to enhance a fingerprint image. The orientation of the gabor filters are based on the orientation of the ridges. the shape of the gabor filter is based on the frequency and wavelength of the ridges.
+## Usage
+
+### Extract minutiae from one image
+
+```bash
+cd src
+python main_enhancement.py                      # uses the sample image in images/
+python main_enhancement.py path/to/image.bmp     # or your own image
+python main_enhancement.py path/to/image.bmp --save-steps   # also dump intermediate pipeline images
+```
+
+Output is written to `enhanced/`:
+- `enhanced.bmp` — the enhanced, binarized fingerprint
+- `Minutiae.bmp` — the skeleton with terminations (blue) and bifurcations (red) circled
+- `minutiae.txt` — one line per minutia: `type<TAB>row col<TAB>angle_degrees`
+- with `--save-steps`, `steps/<image_name>/` also gets the normalized, orientation, filtered and skeleton images for inspection/presentation
+
+### Compare two fingerprints
+
+```bash
+cd src
+python match_fingerprints.py imageA.bmp imageB.bmp
+```
+
+This is a simplified, teaching-purpose matcher: it pairs minutiae between
+the two images by pixel distance and ridge angle, assuming the two
+fingerprints are already roughly aligned (no rotation/translation
+registration is performed). It reports a similarity score and a same/
+different verdict. It is meant to illustrate the matching concept, not to
+be a production-grade biometric matcher.
+
+## Project layout
+
+```
+images/          sample input fingerprint image(s)
+enhanced/        output of main_enhancement.py (generated, not needed in git)
+src/
+  ridge_segment.py, ridge_orient.py, ridge_freq.py, frequest.py,
+  ridge_filter.py, image_enhance.py    -- Gabor-filter based enhancement
+  getTerminationBifurcation.py         -- minutiae detection on the skeleton
+  removeSpuriousMinutiae.py            -- drops minutiae that are too close together
+  main_enhancement.py                  -- CLI: enhance + extract minutiae
+  match_fingerprints.py                -- CLI: compare two fingerprints
+```
 
 ## License
-- This project is licensed under the BSD 2 License - see the LICENSE.md file for details
 
-## Acknowledgements
-- This program is based on the paper: Hong, L., Wan, Y., and Jain, A. K. 'Fingerprint image enhancement: Algorithm and performance evaluation'. IEEE Transactions on Pattern Analysis and Machine Intelligence 20, 8 (1998), pp 777-789.
-
-- The author would like to thank Dr. Peter Kovesi (This code is a python implementation of his work)
-
-# FingerprintFeatureExtraction
-The important fingerprint minutiae features are the ridge endpoints (a.k.a. Terminations) and Ridge Bifurcations.
-
-![image](https://user-images.githubusercontent.com/13918778/35665327-9ddbd220-06da-11e8-8fa9-1f5444ee2036.png)
-
-The feature set for the image consists of the location of Terminations and Bifurcations and their orientations
-
-use the code https://github.com/Utkarsh-Deshmukh/Fingerprint-Enhancement-Python to enhance the fingerprint image.
-This program takes in the enhanced fingerprint image and extracts the minutiae features.
-
-Here are some of the outputs:
-
-
-![1](https://user-images.githubusercontent.com/13918778/35665568-ae1fdb6c-06db-11e8-937b-33d7445c931d.jpg)   ![enhanced_feat1](https://user-images.githubusercontent.com/13918778/35665578-baddaf82-06db-11e8-8638-d24de65acd31.jpg)
-
+BSD 2-Clause — see [LICENSE](LICENSE). Enhancement algorithm and original
+implementation by Utkarsh Deshmukh / Peter Kovesi; minutiae extraction,
+angle computation and matching demo added on top of it.

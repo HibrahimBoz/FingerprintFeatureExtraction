@@ -50,7 +50,7 @@ Created on Fri Apr 22 03:15:03 2016
 
 
 import numpy as np
-import scipy;
+import scipy.ndimage;
 def ridge_filter(im, orient, freq, kx, ky):
     angleInc = 3;
     im = np.double(im);
@@ -77,8 +77,8 @@ def ridge_filter(im, orient, freq, kx, ky):
     sigmax = 1/unfreq[0]*kx;
     sigmay = 1/unfreq[0]*ky;
     
-    sze = np.round(3*np.max([sigmax,sigmay]));
-    
+    sze = int(np.round(3*np.max([sigmax,sigmay])));
+
     x,y = np.meshgrid(np.linspace(-sze,sze,(2*sze + 1)),np.linspace(-sze,sze,(2*sze + 1)));
     
     reffilter = np.exp(-(( (np.power(x,2))/(sigmax*sigmax) + (np.power(y,2))/(sigmay*sigmay)))) * np.cos(2*np.pi*unfreq[0]*x); # this is the original gabor filter
