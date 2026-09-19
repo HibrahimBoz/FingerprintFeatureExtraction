@@ -1,2 +1,8 @@
-src/__pycache__/removeSpuriousMinutiae.cpython-36.pyc
-src/__pycache__/getTerminationBifurcation.cpython-36.pyc
+__pycache__/
+*.pyc
+*.pyo
+
+# generated at runtime by src/main_enhancement.py
+src/data.txt
+enhanced/*.txt
+enhanced/steps/

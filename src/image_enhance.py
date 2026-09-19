@@ -9,7 +9,7 @@ from ridge_orient import ridge_orient
 from ridge_freq import ridge_freq
 from ridge_filter import ridge_filter
 
-def image_enhance(img):
+def image_enhance(img, return_all=False):
     blksze = 16;
     thresh = 0.1;
     normim,mask = ridge_segment(img,blksze,thresh);             # normalise the image and find a ROI
@@ -26,12 +26,22 @@ def image_enhance(img):
     minWaveLength = 5;
     maxWaveLength = 15;
     freq,medfreq = ridge_freq(normim, mask, orientim, blksze, windsze, minWaveLength,maxWaveLength);    #find the overall frequency of ridges
-    
-    
+
+
     freq = medfreq*mask;
     kx = 0.65;ky = 0.65;
     newim = ridge_filter(normim, orientim, freq, kx, ky);       # create gabor filter and do the actual filtering
-    
-    
+
+
     #th, bin_im = cv2.threshold(np.uint8(newim),0,255,cv2.THRESH_BINARY);
-    return(newim < -3)
+    binim = newim < -3
+
+    if return_all:
+        return {
+            "normalized": normim,
+            "mask": mask,
+            "orientation": orientim,
+            "filtered": newim,
+            "binary": binim,
+        }
+    return binim
