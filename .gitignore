@@ -5,4 +5,3 @@ __pycache__/
 # generated at runtime by src/main_enhancement.py
 src/data.txt
 enhanced/*.txt
-enhanced/steps/

@@ -1,4 +1,5 @@
 numpy>=1.24
-scipy>=1.10
 opencv-python>=4.7
 scikit-image>=0.20
+fingerprint-enhancer>=0.0.14
+fingerprint-feature-extractor>=0.0.10
